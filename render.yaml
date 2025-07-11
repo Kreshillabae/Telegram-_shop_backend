@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: telegram-shop-backend
+    env: python
+    plan: free
+    buildCommand: ""
+    startCommand: "python app.py"
+    envVars:
+      - key: BOT_TOKEN
+        value: 8036297818:AAFcg7_Akiv83HK7JcolJul7-8Qq2n2JrhY
+      - key: ADMIN_PASSWORD
+        value: Kreshillabae123
+      - key: ADMIN_CHAT_ID
+        value: 123456
