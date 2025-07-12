@@ -1,36 +1,30 @@
-import telebot
 import os
+import telebot
+from flask import Flask, jsonify
 
+# Load the bot token from environment variables
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot(BOT_TOKEN)
 
+# Set up Flask app
 app = Flask(__name__)
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-
+# Home route
 @app.route('/')
 def home():
-    return "Telegram Shop Bot is running."
+    return "Telegram shop bot is running"
 
-@app.route('/order', methods=['POST'])
-def handle_order():
-    data = request.json
-    print("New order received:", data)
+# Products route (example empty list for now)
+@app.route('/products')
+def get_products():
+    return jsonify([])
 
-    chat_id = os.getenv("ADMIN_CHAT_ID")
-    if chat_id:
-        message = f"📦 New order from {data.get('user', {}).get('first_name', 'User')}\n"
-        for item in data['items']:
-            message += f"- {item['name']}: ${item['price']}\n"
-        send_message(chat_id, message)
+# Bot command handler for /start
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    bot.reply_to(message, "Welcome to Honey Hair Garden shop!")
 
-    return {"status": "ok"}
-
-def send_message(chat_id, text):
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    payload = {"chat_id": chat_id, "text": text}
-    requests.post(url, json=payload)
-
+# Start both Flask app and bot polling when the script is run directly
 if __name__ == "__main__":
-    bot.polling()
-    app.run(host="0.0.0.0", port=5000)
+    # Start bot polling
+    bot.polling(non_stop=True)
