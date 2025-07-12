@@ -26,4 +26,15 @@ def send_welcome(message):
 
 # Start both Flask app and bot polling when the script is run directly
 if __name__ == "__main__":
+    from threading import Thread
+
+    # Start bot polling in a separate thread
+    def start_bot():
+        bot.polling(non_stop=True)
+
+    Thread(target=start_bot).start()
+
+    # Run Flask app on the Render-assigned port
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
     bot.polling(non_stop=True)
