@@ -14,7 +14,7 @@ app = Flask(__name__)
 def home():
     return "Telegram shop bot is running"
 
-# Products route (example empty list for now)
+# Products route
 @app.route('/products')
 def get_products():
     return jsonify([])
@@ -26,5 +26,4 @@ def send_welcome(message):
 
 # Start both Flask app and bot polling when the script is run directly
 if __name__ == "__main__":
-    # Start bot polling
     bot.polling(non_stop=True)
