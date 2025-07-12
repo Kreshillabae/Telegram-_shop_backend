@@ -1,34 +1,29 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import requests
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS so Netlify frontend can send requests
 
-# Your Telegram bot token and chat ID
+# Replace with your actual Telegram bot token and chat ID
 BOT_TOKEN = '8036297818:AAFcg7_Akiv83HK7JcolJul7-8Qq2n2JrhY'
 CHAT_ID = '6945455531'
 
-# Home route
 @app.route('/')
 def home():
-    return "Telegram shop bot is running"
+    return "Telegram Live"
 
-# Checkout route to receive orders from your website
-@app.route('/checkout', methods=['POST'])
-def checkout():
-    data = request.get_json()
+@app.route('/send_order', methods=['POST'])
+def send_order():
+    data = request.json
+    order_items = data.get('order', [])
+    total_price = data.get('total', 0)
 
-    if not data or 'items' not in data:
-        return jsonify({'error': 'Invalid order format'}), 400
+    message = "🛒 *New Order Received!*\n\n"
+    for item in order_items:
+        message += f"- {item['product']}: ₦{item['price']}\n"
+    message += f"\n*Total:* ₦{total_price}"
 
-    # Build order message
-    message = "🛍️ *New Order Received:*\n\n"
-    total = 0
-    for item in data['items']:
-        message += f"- {item['name']} - ₦{item['price']}\n"
-        total += item['price']
-    message += f"\n*Total:* ₦{total}"
-
-    # Send message to Telegram
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     payload = {
         'chat_id': CHAT_ID,
@@ -37,11 +32,11 @@ def checkout():
     }
     response = requests.post(url, json=payload)
 
-    if response.status_code == 200:
-        return jsonify({'message': 'Order sent successfully!'}), 200
-    else:
-        return jsonify({'error': 'Failed to send order to Telegram'}), 500
+    return jsonify({
+        'status': 'Order received',
+        'telegram_status': response.status_code,
+        'telegram_response': response.json()
+    }), 200
 
-# Run the app (only if running locally, not on Render)
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
