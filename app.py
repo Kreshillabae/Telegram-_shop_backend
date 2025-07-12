@@ -3,9 +3,8 @@ from flask_cors import CORS
 import requests
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS so Netlify frontend can send requests
+CORS(app)
 
-# Replace with your actual Telegram bot token and chat ID
 BOT_TOKEN = '8036297818:AAFcg7_Akiv83HK7JcolJul7-8Qq2n2JrhY'
 CHAT_ID = '6945455531'
 
@@ -13,8 +12,8 @@ CHAT_ID = '6945455531'
 def home():
     return "Telegram Live"
 
-@app.route('/send_order', methods=['POST'])
-def send_order():
+@app.route('/order', methods=['POST'])
+def order():
     data = request.json
     order_items = data.get('order', [])
     total_price = data.get('total', 0)
