@@ -5,6 +5,7 @@ import requests
 app = Flask(__name__)
 CORS(app)
 
+# Your Telegram bot token and chat ID
 BOT_TOKEN = '8036297818:AAFcg7_Akiv83HK7JcolJul7-8Qq2n2JrhY'
 CHAT_ID = '6945455531'
 
@@ -29,12 +30,21 @@ def order():
         'text': message,
         'parse_mode': 'Markdown'
     }
-    response = requests.post(url, json=payload)
+
+    try:
+        response = requests.post(url, json=payload)
+        telegram_response = response.json()
+        status_code = response.status_code
+    except Exception as e:
+        return jsonify({
+            'status': 'failed',
+            'error': str(e)
+        }), 500
 
     return jsonify({
         'status': 'Order received',
-        'telegram_status': response.status_code,
-        'telegram_response': response.json()
+        'telegram_status': status_code,
+        'telegram_response': telegram_response
     }), 200
 
 if __name__ == '__main__':
