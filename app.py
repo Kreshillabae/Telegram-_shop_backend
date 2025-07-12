@@ -21,13 +21,10 @@ def checkout():
         return jsonify({'error': 'Invalid order format'}), 400
 
     # Build order message
-    message = "🛍️ *New Order Received:*
-
-"
+    message = "🛍️ *New Order Received:*\n\n"
     total = 0
     for item in data['items']:
-        message += f"- {item['name']} - ₦{item['price']}
-"
+        message += f"- {item['name']} - ₦{item['price']}\n"
         total += item['price']
     message += f"\n*Total:* ₦{total}"
 
