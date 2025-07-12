@@ -1,40 +1,50 @@
-import os
-import telebot
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify
+import requests
 
-# Load the bot token from environment variables
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-bot = telebot.TeleBot(BOT_TOKEN)
-
-# Set up Flask app
 app = Flask(__name__)
+
+# Your Telegram bot token and chat ID
+BOT_TOKEN = '8036297818:AAFcg7_Akiv83HK7JcolJul7-8Qq2n2JrhY'
+CHAT_ID = '6945455531'
 
 # Home route
 @app.route('/')
 def home():
     return "Telegram shop bot is running"
 
-# Products route
-@app.route('/products')
-def get_products():
-    return jsonify([])
+# Checkout route to receive orders from your website
+@app.route('/checkout', methods=['POST'])
+def checkout():
+    data = request.get_json()
 
-# Bot command handler for /start
-@bot.message_handler(commands=['start'])
-def send_welcome(message):
-    bot.reply_to(message, "Welcome to Honey Hair Garden shop!")
+    if not data or 'items' not in data:
+        return jsonify({'error': 'Invalid order format'}), 400
 
-# Start both Flask app and bot polling when the script is run directly
-if __name__ == "__main__":
-    from threading import Thread
+    # Build order message
+    message = "🛍️ *New Order Received:*
 
-    # Start bot polling in a separate thread
-    def start_bot():
-        bot.polling(non_stop=True)
+"
+    total = 0
+    for item in data['items']:
+        message += f"- {item['name']} - ₦{item['price']}
+"
+        total += item['price']
+    message += f"\n*Total:* ₦{total}"
 
-    Thread(target=start_bot).start()
+    # Send message to Telegram
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    payload = {
+        'chat_id': CHAT_ID,
+        'text': message,
+        'parse_mode': 'Markdown'
+    }
+    response = requests.post(url, json=payload)
 
-    # Run Flask app on the Render-assigned port
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
-    bot.polling(non_stop=True)
+    if response.status_code == 200:
+        return jsonify({'message': 'Order sent successfully!'}), 200
+    else:
+        return jsonify({'error': 'Failed to send order to Telegram'}), 500
+
+# Run the app (only if running locally, not on Render)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=10000)
