@@ -1,6 +1,8 @@
-from flask import Flask, request
+import telebot
 import os
-import requests
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+bot = telebot.TeleBot(BOT_TOKEN)
 
 app = Flask(__name__)
 
