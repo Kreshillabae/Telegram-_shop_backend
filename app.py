@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
@@ -5,7 +6,6 @@ import requests
 app = Flask(__name__)
 CORS(app)
 
-# Your Telegram bot token and chat ID
 BOT_TOKEN = '8036297818:AAFcg7_Akiv83HK7JcolJul7-8Qq2n2JrhY'
 CHAT_ID = '6945455531'
 
@@ -48,4 +48,5 @@ def order():
     }), 200
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
